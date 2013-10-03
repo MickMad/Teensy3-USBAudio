@@ -481,17 +481,17 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x02,									// bDescriptorSubtype = FORMAT_TYPE
 				0x01,									// bFormatType = FORMAT_TYPE_I
 				0x01, 									// bNrChannels = 1
-				0x01,									// bSubFrameSize = 1 byte
+				0x02,									// bSubFrameSize = 1 byte
 				0x10,									// bBitResolution = 16 bits
 				0x01,									// bSamFreqType = 1 frequency
-				0x40,0x1F,0x00,							// tSamFreq = 48KHz
+				0x80,0x3E,0x00,							// tSamFreq = 32 KHz
 				
 				// Standard AS Isochronous Audio Data Endpoint Descriptor(4.33, p. 85, USB Device Class Definition for Audio Devices 2.0)
 				0x09, 									// bLength 
 				0x05, 									// bDescriptorType = ENDPOINT_DESCRIPTOR
 				AUDIO_STREAMING_TX_ENDPOINT | 0x80,		// bEndpointAddress = 3 - IN
-				0x05, 									// bmAttributes = isochronous - asynchronous
-				//0x0D,										// bmAttributes = isochronous - synchronous
+				//0x05, 									// bmAttributes = isochronous - asynchronous
+				0x0D,										// bmAttributes = isochronous - synchronous
 				//0x09,										// bmAttributes = isochronous - adaptive
 				AUDIO_STREAMING_TX_SIZE, 0x00, 			// wMaxPacketSize = 16(8 samples * 2 bytes * 1 channel) 
 				AUDIO_STREAMING_TX_INTERVAL, 			// bInterval =  x ms

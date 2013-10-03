@@ -305,13 +305,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	12
   #define EP0_SIZE			64
   #define NUM_ENDPOINTS     1
-  #define NUM_USB_BUFFERS	16
+  #define NUM_USB_BUFFERS	2
   #define NUM_INTERFACE		2
   #define AUDIO_CONTROL_INTERFACE 		0	
   #define AUDIO_STREAMING_INTERFACE 	1
   #define CONFIG_DESC_SIZE	(9 + 39 + 52) 	// +9+7+7+9
   #define AUDIO_STREAMING_TX_ENDPOINT 	1
-  #define AUDIO_STREAMING_TX_SIZE      	16
+  #define AUDIO_STREAMING_TX_SIZE      	32
   #define AUDIO_STREAMING_TX_INTERVAL 	1
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
 #endif

@@ -400,8 +400,8 @@ static void usb_setup(void)
 		//serial_print("get_sam_freq_ctl\n");
 		if (setup.wValue = 0x01){ 	//GET_SAMPLING_FREQ_CONTROL
 			reply_buffer[0] = 0x00;
-			reply_buffer[1] = 0x1F;
-			reply_buffer[2] = 0x40;
+			reply_buffer[1] = 0x3E;
+			reply_buffer[2] = 0x80;
 			data = reply_buffer;
 			datalen = 3;
 		}else endpoint0_stall();
@@ -797,6 +797,7 @@ void usb_isr(void)
 			usb_flightsim_flush_callback();
 #endif
 #ifdef AUDIO_CONTROL_INTERFACE
+			audio_SOF_signal = 1;
 			t = usb_audio_transmit_flush_timer;
 			if (t) {
 				usb_audio_transmit_flush_timer = --t;

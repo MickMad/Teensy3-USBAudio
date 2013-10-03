@@ -1,4 +1,4 @@
-#define MAX_BUFFER_SIZE 32
+#define MAX_BUFFER_SIZE 16
 #define LSB(n) ((n) & 255)
 #define MSB(n) (((n) >> 8) & 255)
 
@@ -13,7 +13,7 @@ bool active=false;
 void initStuff(){
 	sampleCounter = 0;
 	sampleSize = 2; //2 bytes per sample
-	bufferLength = 8; //8 samples per buffer/packet
+	bufferLength = 16; //8 samples per buffer/packet
 	uint8_t i;
 	for (i=0;i<MAX_BUFFER_SIZE;i++){
 		audioBuffer[i] = 0x0000;
@@ -26,33 +26,34 @@ void setup() {
 }
 
 void loop() {
-	if(!Audio.getAlternateSetting()){
-		if (active) {
-			PIT.end();
+	if (active){
+		if(!Audio.getAlternateSetting()){
 			active=false;
 			blinkTwoTimes();
 			blinkTwoTimes();
+		}else{
+			if (Audio.getSOF()) doAudioStuff();
 		}
-	}
-	else if (Audio.getAlternateSetting()) {
-		active=true;
-		blinkTwoTimes();
-		PIT.begin(doAudioStuffISR, 100);  // 48 khz
+	} else {
+		if (Audio.getAlternateSetting()){
+			active=true;
+			blinkTwoTimes();
+		}
 	}
 }
 
-void doAudioStuffISR(){
-	//if (sampleCounter<4) audioBuffer[sampleCounter] = 0x0080;
-	//else audioBuffer[sampleCounter] = 0xff7f;
-	if (sampleCounter<4) audioBuffer[sampleCounter] = 0x8000;
-	else audioBuffer[sampleCounter] = 0x7fff;
-	sampleCounter++;
-	if (sampleCounter%2) digitalWrite(led,LOW);
-	else digitalWrite(led,HIGH);
-	if (sampleCounter>bufferLength) {
-		Audio.sendAudio(audioBuffer,bufferLength*sampleSize);
-		sampleCounter = 0;
+void doAudioStuff(){
+	for (sampleCounter=0;sampleCounter<bufferLength;sampleCounter++){
+		if (sampleCounter<8){
+			audioBuffer[sampleCounter] = 0x7FFF;
+			digitalWrite(led,HIGH);
+		}else{
+			audioBuffer[sampleCounter] = 0x8000;
+			digitalWrite(led,LOW);
+		}
 	}
+	Audio.sendAudio(audioBuffer,bufferLength*sampleSize);
+	Audio.clearSOF();
 }
 void blinkTwoTimes(){
 	digitalWrite(led,HIGH);
