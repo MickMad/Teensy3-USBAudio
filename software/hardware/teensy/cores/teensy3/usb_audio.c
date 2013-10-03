@@ -23,6 +23,7 @@ static usb_packet_t *tx_packet=NULL;
 static uint8_t tx_transmit_previous_timeout=0;
 static uint8_t tx_noautoflush=0;
 uint8_t audio_streaming_alternate_setting = 0;
+volatile uint8_t audio_SOF_signal = 0;
 volatile uint8_t usb_audio_transmit_flush_timer = 0;
 
 const uint16_t testData[8] = { 0x0000, 0x0000, 0x0000, 0x0000,
@@ -88,7 +89,7 @@ uint8_t usb_audio_write_data(const void *data, uint8_t length){
 }
 
 void usb_audio_flush_callback(void){
-if (tx_noautoflush) return;
+	if (tx_noautoflush) return;
 	if (tx_packet) {
 		tx_packet->len = tx_packet->index;
 		usb_tx(AUDIO_STREAMING_TX_ENDPOINT, tx_packet);
