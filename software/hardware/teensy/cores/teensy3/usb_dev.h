@@ -95,6 +95,7 @@ extern void usb_flightsim_flush_callback(void);
 extern void usb_audio_set_alternate_setting(uint8_t alt_set);
 extern uint8_t usb_audio_get_alternate_setting();
 extern void usb_audio_flush_callback(void);
+extern volatile uint8_t audio_SOF_signal;
 extern volatile uint8_t usb_audio_transmit_flush_timer;
 #endif
 
