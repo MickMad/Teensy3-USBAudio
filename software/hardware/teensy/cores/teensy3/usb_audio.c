@@ -1,4 +1,5 @@
 #include "usb_dev.h"
+#include "usb_desc.h"
 #include "usb_audio.h"
 #include "core_pins.h" // for yield(()
 #include "HardwareSerial.h"
@@ -87,6 +88,7 @@ uint8_t usb_audio_write_data(const void *data, uint8_t length){
 	tx_noautoflush = 0;
 	return 0;
 }
+
 
 void usb_audio_flush_callback(void){
 	if (tx_noautoflush) return;
