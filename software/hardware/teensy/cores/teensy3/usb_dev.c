@@ -399,9 +399,9 @@ static void usb_setup(void)
 	  case 0x84A2:
 		//serial_print("get_sam_freq_ctl\n");
 		if (setup.wValue = 0x01){ 	//GET_SAMPLING_FREQ_CONTROL
-			reply_buffer[0] = 0x00;
-			reply_buffer[1] = 0x3E;
-			reply_buffer[2] = 0x80;
+			reply_buffer[0] = SAMPLING_RATE_MSB;
+			reply_buffer[1] = SAMPLING_RATE_MID;
+			reply_buffer[2] = SAMPLING_RATE_LSB;
 			data = reply_buffer;
 			datalen = 3;
 		}else endpoint0_stall();
@@ -672,7 +672,8 @@ void usb_rx_memory(usb_packet_t *packet)
 		if (*cfg++ & USB_ENDPT_EPRXEN) {
 			if (table[index(i, RX, EVEN)].desc == 0) {
 				table[index(i, RX, EVEN)].addr = packet->buf;
-				table[index(i, RX, EVEN)].desc = BDT_DESC(64, 0);
+				//table[index(i, RX, EVEN)].desc = BDT_DESC(64, 0);
+				table[index(i, RX, EVEN)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE, 0);
 				usb_rx_memory_needed--;
 				__enable_irq();
 				////serial_phex(i);
@@ -681,7 +682,8 @@ void usb_rx_memory(usb_packet_t *packet)
 			}
 			if (table[index(i, RX, ODD)].desc == 0) {
 				table[index(i, RX, ODD)].addr = packet->buf;
-				table[index(i, RX, ODD)].desc = BDT_DESC(64, 1);
+				//table[index(i, RX, ODD)].desc = BDT_DESC(64, 1);
+				table[index(i, RX, ODD)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE, 1);
 				usb_rx_memory_needed--;
 				__enable_irq();
 				////serial_phex(i);
