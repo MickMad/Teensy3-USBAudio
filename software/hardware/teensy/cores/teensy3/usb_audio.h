@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include "usb_dev.h"
+
 #ifdef __cplusplus
 extern "C"{
 #endif
