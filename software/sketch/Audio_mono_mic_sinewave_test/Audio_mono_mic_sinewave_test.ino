@@ -1,6 +1,9 @@
 #define MAX_BUFFER_SIZE 16
+#define SAMPLING_FREQ 16000
 #define LSB(n) ((n) & 255)
 #define MSB(n) (((n) >> 8) & 255)
+#define NOTE_POT A0
+#include "notes.h"
 
 const uint8_t sineTable[] = {
   0x80, 0x83, 0x86, 0x89, 0x8C, 0x8F, 0x92, 0x95, 0x98, 0x9B, 0x9E, 0xA2, 
@@ -28,23 +31,29 @@ const uint8_t sineTable[] = {
 
 };
 IntervalTimer PIT = IntervalTimer();
-uint16_t audioBuffer[MAX_BUFFER_SIZE];
+uint16_t audioBufferFirst[MAX_BUFFER_SIZE];
+uint16_t audioBufferLast[MAX_BUFFER_SIZE];
 uint8_t bufferLength;
 uint8_t sampleSize;
 uint8_t sampleCounter = 0;
 uint8_t led = 13;
 uint8_t counter = 0;
+uint8_t wait_for_SOF = 1;
+uint8_t readFirstBuffer = 1;
+unsigned short phase;
+unsigned short tuning;
+float freq;
 bool active=false;
 void initStuff(){
 	sampleCounter = 0;
 	sampleSize = 2; //2 bytes per sample
-	bufferLength = 16; //8 samples per buffer/packet
+	bufferLength = 16; //SAMPLING_FREQ/1000 samples per packet
 	uint8_t i;
 	for (i=0;i<MAX_BUFFER_SIZE;i++){
-		audioBuffer[i] = 0x0000;
+		audioBufferFirst[i] = 0x0000;
 	}
 }
-void setup() {
+// void setup() {
 	pinMode(led,OUTPUT);
 	initStuff();
 	Audio.begin();
@@ -53,40 +62,48 @@ void setup() {
 void loop() {
 	if (active){
 		if(!Audio.getAlternateSetting()){
+			//PIT.end();
 			active=false;
-			blinkTwoTimes();
-			blinkTwoTimes();
+			blink();
+			blink();
 		}else{
-			if (Audio.getSOF()) doAudioStuff();
+			if (wait_for_SOF){
+				sendBuffer();
+				sampleCounter = 0;
+				wait_for_SOF = 0;
+				freq = freq_table[map(analogRead(NOTE_POT),0,1024,0,84)];
+				tuning = 65536*freq/SAMPLING_FREQ;
+			}else doAudioStuffISR();
 		}
 	} else {
 		if (Audio.getAlternateSetting()){
 			active=true;
-			blinkTwoTimes();
+			blink();
 		}
 	}
 }
 
-void doAudioStuff(){
-	for (sampleCounter=0;sampleCounter<bufferLength;sampleCounter++){
-		if (sampleCounter<8){
-			digitalWrite(led,HIGH);
-		}else{
-			digitalWrite(led,LOW);
-		}
-		audioBuffer[sampleCounter] = (sineTable[counter]-0x80)<<3;
-		counter+=16;
-	}
-	Audio.sendAudio(audioBuffer,bufferLength*sampleSize);
-	Audio.clearSOF();
+void sendBuffer(){
+	//if (readFirstBuffer) Audio.sendAudio(audioBufferFirst,bufferLength*sampleSize);
+	//else 
+	Audio.sendAudio(audioBufferLast,bufferLength*sampleSize);
+	//Audio.clearSOF();
 }
-void blinkTwoTimes(){
+
+void doAudioStuffISR(){
+	if (sampleCounter==bufferLength) {
+		wait_for_SOF = 1;
+		return;
+	}
+	phase+=tuning;
+	uint8_t temp = phase>>8;
+	//if (readFirstBuffer) { 
+	audioBufferLast[sampleCounter++] = (sineTable[temp]-0x80); //readFirstBuffer=0; }
+	//else { audioBufferFirst[sampleCounter++] = (sineTable[counter++]-0x80)<<3; readFirstBuffer=1; };
+}
+void blink(){
 	digitalWrite(led,HIGH);
-	delay(100);
+	delay(50);
 	digitalWrite(led,LOW);
-	delay(100);
-	digitalWrite(led,HIGH);
-	delay(100);
-	digitalWrite(led,LOW);
-	delay(100);
+	delay(50);
 }
