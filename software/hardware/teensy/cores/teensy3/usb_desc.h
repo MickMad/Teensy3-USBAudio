@@ -295,7 +295,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined (USB_AUDIO)
   #define VENDOR_ID			0x16C0
   #define PRODUCT_ID		0x0485
-  #define BCD_DEVICE 		0x0202
+  #define BCD_DEVICE 		0x0206
   #define DEVICE_CLASS		0x00
   #define DEVICE_SUBCLASS	0x00
   #define DEVICE_PROTOCOL	0x00
@@ -305,7 +305,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	12
   #define EP0_SIZE			64
   #define NUM_ENDPOINTS     1
-  #define NUM_USB_BUFFERS	2
+  #define NUM_USB_BUFFERS	8
   #define NUM_INTERFACE		2
   #define AUDIO_CONTROL_INTERFACE 		0	
   #define AUDIO_STREAMING_INTERFACE 	1
@@ -314,6 +314,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define AUDIO_STREAMING_TX_SIZE      	32
   #define AUDIO_STREAMING_TX_INTERVAL 	1
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define SAMPLING_RATE_MSB 0x00
+  #define SAMPLING_RATE_MID 0x3E	//16K		//0x7D 32K		//0xAC	44.1k	//0xBB 48K
+  #define SAMPLING_RATE_LSB 0x80				//0x00 			//0x44			//0X80
 #endif
 
 // NUM_ENDPOINTS = number of non-zero endpoints (0 to 15)
