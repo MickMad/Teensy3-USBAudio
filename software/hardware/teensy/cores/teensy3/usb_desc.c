@@ -416,10 +416,15 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x24,									//bDescriptorType = CS_INTERFACE
 				0x02,									//bDescriptorSubType = INPUT_TERMINAL
 				0x10,									//bTerminalID = INPUT_TERMINAL_ID
-				0x01,0x02,								//wTerminalType = MICROPHONE
+				//0x01,0x02,								//wTerminalType = MICROPHONE
+				0x03,0x06,								//wTerminalType = MICROPHONE
 				0x00,									//bAssocTerminal
-				0x01,									//bNrChannels = 1 channel
-				0x00,0x00,								//wChannelConfig = mono sets no position bits
+				AUDIO_STREAMING_TX_CHANNELS,			//bNrChannels = 1 channel
+				#if AUDIO_STREAMING_TX_CHANNELS == 2
+				0x00,0x03,								//wChannelConfig = mono sets no position bits / stereo sets bits 1.0 (b1 = Right, b0 = Left)
+				#elif AUDIO_STREAMING_TX_CHANNELS == 1
+				0x00,0x01,								//wChannelConfig = mono sets no position bits / stereo sets bits 1.0 (b1 = Right, b0 = Left)
+				#endif
 				0x00,									//iChannelNames
 				0x00, 									//iTerminal
 				// Output Terminal Descriptor (Table 4.9, p.53, USB Device Class Definition for Audio Devices 2.0)
@@ -480,11 +485,11 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x24,									// bDescriptorType = CS_INTERFACE
 				0x02,									// bDescriptorSubtype = FORMAT_TYPE
 				0x01,									// bFormatType = FORMAT_TYPE_I
-				0x01, 									// bNrChannels = 1
+				AUDIO_STREAMING_TX_CHANNELS,			// bNrChannels = 1
 				0x02,									// bSubFrameSize = 2 byte
 				0x10,									// bBitResolution = 16 bits
 				0x01,									// bSamFreqType = 1 frequency
-				SAMPLING_RATE_LSB,SAMPLING_RATE_MID,SAMPLING_RATE_MSB,							// tSamFreq = 44.1 KHz
+				SAMPLING_RATE_LSB,SAMPLING_RATE_MID,SAMPLING_RATE_MSB,							// tSamFreq
 				
 				// Standard AS Isochronous Audio Data Endpoint Descriptor(4.33, p. 85, USB Device Class Definition for Audio Devices 2.0)
 				0x09, 									// bLength 

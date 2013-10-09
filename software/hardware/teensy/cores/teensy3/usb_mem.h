@@ -31,8 +31,14 @@
 #ifndef _usb_mem_h_
 #define _usb_mem_h_
 
-#define MAX_PACKET_BUFFER_SIZE 16  // used to set the dimension of the buf[] field in usb_packet_struct
+#define MAX_PACKET_BUFFER_SIZE 192  // used to set the dimension of the buf[] field in usb_packet_struct
+#define MAX_PACKET_BUFFER_SAMPLE_SIZE 2
+
+#if MAX_PACKET_BUFFER_SAMPLE_SIZE == 1
+#define myType uint8_t
+#elif MAX_PACKET_BUFFER_SAMPLE_SIZE == 2
 #define myType uint16_t //used to set the type of the content of the buf[] field in usb_packet_struct
+#endif
 
 #include <stdint.h>
 

@@ -1,4 +1,20 @@
 #include <stdint.h>
+#define LUT_INDEX_BITS 13
+
+#if LUT_INDEX_BITS == 8
+	#define LUT_INDEX_MAX 256
+	#define sineTable sineTable8
+#elif LUT_INDEX_BITS == 10
+	#define LUT_INDEX_MAX 1024
+	#define sineTable sineTable10
+#elif LUT_INDEX_BITS == 12
+	#define LUT_INDEX_MAX 4096
+	#define sineTable sineTable12
+#elif LUT_INDEX_BITS == 13
+	#define LUT_INDEX_MAX 8192
+	#define sineTable sineTable13
+#endif //LUT_INDEX_BITS
+
 
 // All 255 Max Amplitude
 

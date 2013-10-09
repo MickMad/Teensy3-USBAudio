@@ -222,7 +222,7 @@ static void usb_setup(void)
 				p = usb_malloc();
 				if (p) {
 					table[index(i, RX, EVEN)].addr = p->buf;
-					table[index(i, RX, EVEN)].desc = BDT_DESC(64, 0);
+					table[index(i, RX, EVEN)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, 0);
 				} else {
 					table[index(i, RX, EVEN)].desc = 0;
 					usb_rx_memory_needed++;
@@ -230,7 +230,7 @@ static void usb_setup(void)
 				p = usb_malloc();
 				if (p) {
 					table[index(i, RX, ODD)].addr = p->buf;
-					table[index(i, RX, ODD)].desc = BDT_DESC(64, 1);
+					table[index(i, RX, ODD)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, 1);
 				} else {
 					table[index(i, RX, ODD)].desc = 0;
 					usb_rx_memory_needed++;
@@ -673,7 +673,7 @@ void usb_rx_memory(usb_packet_t *packet)
 			if (table[index(i, RX, EVEN)].desc == 0) {
 				table[index(i, RX, EVEN)].addr = packet->buf;
 				//table[index(i, RX, EVEN)].desc = BDT_DESC(64, 0);
-				table[index(i, RX, EVEN)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE, 0);
+				table[index(i, RX, EVEN)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, 0);
 				usb_rx_memory_needed--;
 				__enable_irq();
 				////serial_phex(i);
@@ -683,7 +683,7 @@ void usb_rx_memory(usb_packet_t *packet)
 			if (table[index(i, RX, ODD)].desc == 0) {
 				table[index(i, RX, ODD)].addr = packet->buf;
 				//table[index(i, RX, ODD)].desc = BDT_DESC(64, 1);
-				table[index(i, RX, ODD)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE, 1);
+				table[index(i, RX, ODD)].desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, 1);
 				usb_rx_memory_needed--;
 				__enable_irq();
 				////serial_phex(i);
@@ -1048,6 +1048,3 @@ void usb_init(void)
 	
 	//serial_print("usb_init\n");
 }
-
-
-
