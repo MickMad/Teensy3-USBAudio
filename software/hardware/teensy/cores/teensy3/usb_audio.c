@@ -41,7 +41,7 @@ uint8_t usb_audio_get_alternate_setting(){
 uint8_t usb_audio_write_data(const void *data, uint8_t length){
 	uint32_t len;
 	uint32_t wait_count;
-	const uint8_t *src = (const uint8_t *)data;
+	const myType *src = (const myType *)data;
 	uint8_t *dest;
 	tx_noautoflush = 1;
 	while (length > 0) {
