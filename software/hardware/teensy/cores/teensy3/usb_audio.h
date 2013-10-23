@@ -10,8 +10,10 @@
 extern "C"{
 #endif
 uint8_t usb_audio_write_data(const void *data, uint8_t length);
+uint8_t usb_audio_read_data(const void *data, uint8_t length);
 void usb_audio_begin();
-extern uint8_t audio_streaming_alternate_setting;
+extern uint8_t audio_streaming_tx_alternate_setting;
+extern uint8_t audio_streaming_rx_alternate_setting;
 extern volatile uint8_t usb_audio_transmit_flush_timer;
 extern volatile uint8_t audio_SOF_signal;
 #ifdef __cplusplus
@@ -27,8 +29,14 @@ class usb_audio_class{
 		uint8_t sendAudio(const void *data, uint8_t length){ 
 			return usb_audio_write_data(data,length); 
 		};
-		uint8_t getAlternateSetting(){ 
-			return audio_streaming_alternate_setting; 
+		uint8_t recvAudio(const void *data, uint8_t length){
+			return usb_audio_read_data(data,length);
+		};
+		uint8_t getAlternateSettingTX(){ 
+			return audio_streaming_tx_alternate_setting; 
+		};
+		uint8_t getAlternateSettingRX(){ 
+			return audio_streaming_rx_alternate_setting; 
 		};
 		uint8_t getSOF(){
 			return audio_SOF_signal;
