@@ -403,30 +403,32 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 			0x00,				// iInterface
 			
 			// Class-specific AC Interface Descriptor (Table 4.5, p.48, USB DCD for Audio Devices 2.0)
-			0x09,				// bLength
+			0x0A,				// bLength
 			0x24,				// bDescriptorType = CS_INTERFACE
 			0x01,				// bDescriptorSubtype = HEADER
 			0x00, 0x01,			// bcdADC
-			0x1E, 0x00,			// wTotalLength (interface + in + out)
-			0x01,				// bInCollection
-			0x01,				// baInterfaceNr
-				
+			0x34, 0x00,			// wTotalLength (interface + tx in + tx out + rx in + rx out)
+			0x02,				// bInCollection
+			0x01,				// baInterfaceNr(1)
+			0x02,				// baInterfaceNr(2)
+			
 				// Input Terminal Descriptor (Table 4.6, p. 49, USB Device Class Definition for Audio Devices 2.0)
 				0x0C,									//bLength
 				0x24,									//bDescriptorType = CS_INTERFACE
 				0x02,									//bDescriptorSubType = INPUT_TERMINAL
 				0x10,									//bTerminalID = INPUT_TERMINAL_ID
-				//0x01,0x02,								//wTerminalType = MICROPHONE
-				0x03,0x06,								//wTerminalType = MICROPHONE
+				//0x01,0x02,							//wTerminalType = MICROPHONE
+				0x03,0x06,								//wTerminalType = LINE IN
 				0x00,									//bAssocTerminal
-				AUDIO_STREAMING_TX_CHANNELS,			//bNrChannels = 1 channel
+				AUDIO_STREAMING_TX_CHANNELS,			//bNrChannels
 				#if AUDIO_STREAMING_TX_CHANNELS == 2
-				0x00,0x03,								//wChannelConfig = mono sets no position bits / stereo sets bits 1.0 (b1 = Right, b0 = Left)
+				0x00,0x03,								//wChannelConfig = stereo sets bits 1.0 (b1 = Right, b0 = Left)
 				#elif AUDIO_STREAMING_TX_CHANNELS == 1
-				0x00,0x01,								//wChannelConfig = mono sets no position bits / stereo sets bits 1.0 (b1 = Right, b0 = Left)
+				0x00,0x01,								//wChannelConfig = mono sets no position bits
 				#endif
 				0x00,									//iChannelNames
 				0x00, 									//iTerminal
+				
 				// Output Terminal Descriptor (Table 4.9, p.53, USB Device Class Definition for Audio Devices 2.0)
 				0x09,									// bLength
 				0x24,									// bDescriptorType = CS_INTERFACE
@@ -435,6 +437,32 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x01, 0x01,								// wTerminalType = USB_STREAMING
 				0x00,									// bAssocTerminal
 				0x10,									// bCSourceID = INPUT_TERMINAL_ID
+				0x00,									// iTerminal
+				
+				// Input Terminal Descriptor (Table 4.6, p. 49, USB Device Class Definition for Audio Devices 2.0)
+				0x0C,									//bLength
+				0x24,									//bDescriptorType = CS_INTERFACE
+				0x02,									//bDescriptorSubType = INPUT_TERMINAL
+				0x30,									//bTerminalID = INPUT_TERMINAL_ID
+				0x01,0x01,								//wTerminalType = USB_STREAMING
+				0x00,									//bAssocTerminal
+				AUDIO_STREAMING_RX_CHANNELS,			//bNrChannels 
+				#if AUDIO_STREAMING_RX_CHANNELS == 2
+				0x00,0x03,								//wChannelConfig = stereo sets bits 1.0 (b1 = Right, b0 = Left)
+				#elif AUDIO_STREAMING_RX_CHANNELS == 1
+				0x00,0x01,								//wChannelConfig = mono sets no position bits
+				#endif
+				0x00,									//iChannelNames
+				0x00, 									//iTerminal
+				
+				// Output Terminal Descriptor (Table 4.9, p.53, USB Device Class Definition for Audio Devices 2.0)
+				0x09,									// bLength
+				0x24,									// bDescriptorType = CS_INTERFACE
+				0x03,									// bDescriptorSubtype = OUTPUT_TERMINAL
+				0x40,									// bTerminalID = OUTPUT_TERMINAL_ID
+				0x02, 0x03,								// wTerminalType = HEADPHONES
+				0x00,									// bAssocTerminal
+				0x30,									// bCSourceID = INPUT_TERMINAL_ID
 				0x00,									// iTerminal
 				
 				/*// Standard AC Interrupt Endpoint Descriptor (Table 4.25, p. 74, USB DCD for Audio Devices 2.0)
@@ -446,13 +474,14 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				AUDIO_CONTROL_TX_INTERVAL,				// bInterval
 				0x00,									// bRefresh
 				0x00,									// bSynchAddress*/
-#ifdef AUDIO_STREAMING_INTERFACE
+				
+#ifdef AUDIO_STREAMING_TX_INTERFACE
 	// Standard AudioStreaming (AS) Interface Descriptor (Table 4.26, p. 75, USB Device Class Definition for Audio Devices 2.0)
 	// Alternate 0
 	// default setting with zero bandwidth
 			0x09,										// bLenght
 			0x04,										// bDescriptorType = INTERFACE
-			AUDIO_STREAMING_INTERFACE,					// bInterfaceNumber
+			AUDIO_STREAMING_TX_INTERFACE,					// bInterfaceNumber
 			0x00,										// bAlternateSetting
 			0x00,										// bNumEndpoints
 			0x01,										// bInterfaceClass = AUDIO
@@ -464,7 +493,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 			// alternate interface for data streaming
 			0x09,										// bLenght
 			0x04,										// bDescriptorType = INTERFACE
-			AUDIO_STREAMING_INTERFACE,					// bInterfaceNumber
+			AUDIO_STREAMING_TX_INTERFACE,					// bInterfaceNumber
 			0x01,										// bAlternateSetting
 			0x01,										// bNumEndpoints
 			0x01,										// bInterfaceClass = AUDIO
@@ -485,16 +514,16 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x24,									// bDescriptorType = CS_INTERFACE
 				0x02,									// bDescriptorSubtype = FORMAT_TYPE
 				0x01,									// bFormatType = FORMAT_TYPE_I
-				AUDIO_STREAMING_TX_CHANNELS,			// bNrChannels = 1
+				AUDIO_STREAMING_TX_CHANNELS,			// bNrChannels = 2
 				0x02,									// bSubFrameSize = 2 byte
 				0x10,									// bBitResolution = 16 bits
 				0x01,									// bSamFreqType = 1 frequency
-				SAMPLING_RATE_LSB,SAMPLING_RATE_MID,SAMPLING_RATE_MSB,							// tSamFreq
+				AUDIO_TX_SAMPLING_RATE_LSB,AUDIO_TX_SAMPLING_RATE_MID,AUDIO_TX_SAMPLING_RATE_MSB,							// tSamFreq
 				
 				// Standard AS Isochronous Audio Data Endpoint Descriptor(4.33, p. 85, USB Device Class Definition for Audio Devices 2.0)
 				0x09, 									// bLength 
 				0x05, 									// bDescriptorType = ENDPOINT_DESCRIPTOR
-				AUDIO_STREAMING_TX_ENDPOINT | 0x80,		// bEndpointAddress = 3 - IN
+				AUDIO_STREAMING_TX_ENDPOINT | 0x80,		// bEndpointAddress = 1 - IN
 				0x05, 									// bmAttributes = isochronous - asynchronous
 				// 0x0D,										// bmAttributes = isochronous - synchronous
 				//0x09,										// bmAttributes = isochronous - adaptive
@@ -508,10 +537,78 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 				0x25,  									// bDescriptorType = CS_ENDPOINT 
 				0x01,  									// bDescriptorSubtype = EP_GENERAL
 				0x01,  									// bmAttributes = !MaxPacketsOnly - Sampling Freq. Control
-				0x00,  									// bLockDelayUnits
-				0x00, 0x00,  							// wLockDelay 
+				0x01,  									// bLockDelayUnits
+				0x64, 0x00,  							// wLockDelay 
 
 #endif
+
+#ifdef AUDIO_STREAMING_RX_INTERFACE
+	// Standard AudioStreaming (AS) Interface Descriptor (Table 4.26, p. 75, USB Device Class Definition for Audio Devices 2.0)
+	// Alternate 0
+	// default setting with zero bandwidth
+			0x09,										// bLenght
+			0x04,										// bDescriptorType = INTERFACE
+			AUDIO_STREAMING_RX_INTERFACE,					// bInterfaceNumber
+			0x00,										// bAlternateSetting
+			0x00,										// bNumEndpoints
+			0x01,										// bInterfaceClass = AUDIO
+			0x02,										// bInterfaceSubclass = AUDIO_STREAMING
+			0x00,										// bInterfaceProtocol
+			0x00,										// iInterface	
+
+			// Alternate 1
+			// alternate interface for data streaming
+			0x09,										// bLenght
+			0x04,										// bDescriptorType = INTERFACE
+			AUDIO_STREAMING_RX_INTERFACE,				// bInterfaceNumber
+			0x01,										// bAlternateSetting
+			0x01,										// bNumEndpoints
+			0x01,										// bInterfaceClass = AUDIO
+			0x02,										// bInterfaceSubclass = AUDIO_STREAMING
+			0x00,										// bInterfaceProtocol
+			0x00,										// iInterface
+			
+				// Class-Specific AS Interface Descriptor (Table 4.27, p. 76, USB Device Class Definition for Audio Devices 2.0)
+				0x07, 									// bLength
+				0x24,									// bDescriptorType = CS_INTERFACE
+				0x01,									// bDescriptorSubtype = EP_GENERAL
+				0x30,									// bTerminalLink = USB_STREAMING_IN_TERMINAL_ID
+				0x01,									// bDelay
+				0x01,0x00,								// wFormatTag
+	
+				// Type I Format Descriptor (Table 2.2, p. 15,  USB Device Class Definition for Audio Data Formats 2.0)
+				0x0B,									// bLength
+				0x24,									// bDescriptorType = CS_INTERFACE
+				0x02,									// bDescriptorSubtype = FORMAT_TYPE
+				0x01,									// bFormatType = FORMAT_TYPE_I
+				AUDIO_STREAMING_RX_CHANNELS,			// bNrChannels = 1
+				0x02,									// bSubFrameSize = 2 byte
+				0x10,									// bBitResolution = 16 bits
+				0x01,									// bSamFreqType = 1 frequency
+				AUDIO_RX_SAMPLING_RATE_LSB,AUDIO_RX_SAMPLING_RATE_MID,AUDIO_RX_SAMPLING_RATE_MSB,							// tSamFreq
+				
+				// Standard AS Isochronous Audio Data Endpoint Descriptor(4.33, p. 85, USB Device Class Definition for Audio Devices 2.0)
+				0x09, 									// bLength 
+				0x05, 									// bDescriptorType = ENDPOINT_DESCRIPTOR
+				AUDIO_STREAMING_RX_ENDPOINT,		// bEndpointAddress = 2 - IN
+				0x05, 									// bmAttributes = isochronous - asynchronous
+				// 0x0D,										// bmAttributes = isochronous - synchronous
+				//0x09,										// bmAttributes = isochronous - adaptive
+				AUDIO_STREAMING_RX_SIZE, 0x00, 			// wMaxPacketSize
+				AUDIO_STREAMING_RX_INTERVAL, 			// bInterval =  x ms
+				0x00,									// bRefresh
+				0x00,									// bSynchAddress
+				
+				// Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) 
+				0x07,  									// bLength
+				0x25,  									// bDescriptorType = CS_ENDPOINT 
+				0x01,  									// bDescriptorSubtype = EP_GENERAL
+				0x01,  									// bmAttributes = !MaxPacketsOnly - Sampling Freq. Control
+				0x01,  									// bLockDelayUnits
+				0x64, 0x00,  							// wLockDelay 
+
+#endif
+
 #endif
 
 #ifdef MIDI_INTERFACE

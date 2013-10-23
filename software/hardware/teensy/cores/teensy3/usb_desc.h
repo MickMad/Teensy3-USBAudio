@@ -293,9 +293,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
 
 #elif defined (USB_AUDIO)
+	//Device descriptor info
   #define VENDOR_ID			0x16C0
   #define PRODUCT_ID		0x0485
-  #define BCD_DEVICE 		0x0300
+  #define BCD_DEVICE 		0x0302
   #define DEVICE_CLASS		0x00
   #define DEVICE_SUBCLASS	0x00
   #define DEVICE_PROTOCOL	0x00
@@ -303,21 +304,38 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','A','u','d','i','o'}
   #define PRODUCT_NAME_LEN	12
+  
+  //Config descriptor info
   #define EP0_SIZE			64
-  #define NUM_ENDPOINTS     1
-  #define NUM_USB_BUFFERS	8
-  #define NUM_INTERFACE		2
-  #define AUDIO_CONTROL_INTERFACE 		0	
-  #define AUDIO_STREAMING_INTERFACE 	1
-  #define CONFIG_DESC_SIZE	(9 + 39 + 52) 	// +9+7+7+9
+  #define NUM_ENDPOINTS     2
+  #define NUM_USB_BUFFERS	3
+  #define NUM_INTERFACE		3
+  
+  //Class specific descriptors info
+  #define AUDIO_CONTROL_INTERFACE 		0
+  #define AUDIO_STREAMING_TX_INTERFACE 	1
+  #define AUDIO_STREAMING_RX_INTERFACE 	2
+  
+  #define CONFIG_DESC_SIZE	(9 + 61 + 52 + 52) 	// +9+7+7+9
+  
   #define AUDIO_STREAMING_TX_CHANNELS 2
   #define AUDIO_STREAMING_TX_ENDPOINT 	1
   #define AUDIO_STREAMING_TX_SIZE       192
   #define AUDIO_STREAMING_TX_INTERVAL 	1
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
-  #define SAMPLING_RATE_MSB 0x00
-  #define SAMPLING_RATE_MID 0xBB//0xAC		//0x3E		16K		//0x7D 32K		//0xAC	44.1k	//0xBB 48K
-  #define SAMPLING_RATE_LSB 0x80//0x44		//0x80				//0x00 			//0x44			//0X80
+  #define AUDIO_TX_SAMPLING_RATE_MSB 0x00
+  #define AUDIO_TX_SAMPLING_RATE_MID 0xBB//0xAC		//0x3E		16K		//0x7D 32K		//0xAC	44.1k	//0xBB 48K
+  #define AUDIO_TX_SAMPLING_RATE_LSB 0x80//0x44		//0x80				//0x00 			//0x44			//0X80
+  
+  #define AUDIO_STREAMING_RX_CHANNELS 2
+  #define AUDIO_STREAMING_RX_ENDPOINT 	2
+  #define AUDIO_STREAMING_RX_SIZE       192
+  #define AUDIO_STREAMING_RX_INTERVAL 	1
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
+  #define AUDIO_RX_SAMPLING_RATE_MSB 0x00
+  #define AUDIO_RX_SAMPLING_RATE_MID 0xBB//0xAC		//0x3E		16K		//0x7D 32K		//0xAC	44.1k	//0xBB 48K
+  #define AUDIO_RX_SAMPLING_RATE_LSB 0x80//0x44		//0x80				//0x00 			//0x44			//0X80
+  
 #endif
 
 // NUM_ENDPOINTS = number of non-zero endpoints (0 to 15)
