@@ -361,16 +361,24 @@ static void usb_setup(void)
 #if defined (AUDIO_CONTROL_INTERFACE)
 	  case 0x0A81: // GET_INTERFACE
 	  //serial_print("get_int\n");
-		if (setup.wIndex==AUDIO_STREAMING_INTERFACE){
-			reply_buffer[0] = usb_audio_get_alternate_setting();
+		if (setup.wIndex==AUDIO_STREAMING_TX_INTERFACE){
+			reply_buffer[0] = usb_audio_get_alternate_setting_tx();
+			datalen=1;
+			data=reply_buffer;
+		}else if (setup.wIndex==AUDIO_STREAMING_RX_INTERFACE){
+			reply_buffer[0] = usb_audio_get_alternate_setting_rx();
 			datalen=1;
 			data=reply_buffer;
 		}else endpoint0_stall();
 		break;
 	  case 0x0B01: // SET_INTERFACE
 	  //serial_print("set_int:\n");
-		if(setup.wIndex==AUDIO_STREAMING_INTERFACE){
-			usb_audio_set_alternate_setting((uint8_t)setup.wValue);
+		if(setup.wIndex==AUDIO_STREAMING_TX_INTERFACE){
+			usb_audio_set_alternate_setting_tx((uint8_t)setup.wValue);
+			//serial_phex16(setup.wValue);
+			//serial_print(";\n");
+		}else if(setup.wIndex==AUDIO_STREAMING_RX_INTERFACE){
+			usb_audio_set_alternate_setting_rx((uint8_t)setup.wValue);
 			//serial_phex16(setup.wValue);
 			//serial_print(";\n");
 		}else endpoint0_stall();
@@ -398,10 +406,11 @@ static void usb_setup(void)
 	  case 0x83A2:
 	  case 0x84A2:
 		//serial_print("get_sam_freq_ctl\n");
+		// TODO : differentiate between TX sampling rate and RX sampling rate, right now they MUST be the same
 		if (setup.wValue = 0x01){ 	//GET_SAMPLING_FREQ_CONTROL
-			reply_buffer[0] = SAMPLING_RATE_MSB;
-			reply_buffer[1] = SAMPLING_RATE_MID;
-			reply_buffer[2] = SAMPLING_RATE_LSB;
+			reply_buffer[0] = AUDIO_TX_SAMPLING_RATE_MSB;
+			reply_buffer[1] = AUDIO_TX_SAMPLING_RATE_MID;
+			reply_buffer[2] = AUDIO_TX_SAMPLING_RATE_LSB;
 			data = reply_buffer;
 			datalen = 3;
 		}else endpoint0_stall();
@@ -859,7 +868,7 @@ void usb_isr(void)
 					  default:
 						break;
 					}
-					#ifdef AUDIO_STREAMING_INTERFACE
+					#ifdef AUDIO_STREAMING_TX_INTERFACE
 					if (endpoint==1) b->desc = BDT_DESC(packet->len, DATA0);  //endpoint 1 is audio streaming endpoint, for isochronous endpoints you don't toggle between data0 and data1 PIDs
 					else 
 					#endif
@@ -884,7 +893,7 @@ void usb_isr(void)
 				}
 			} else { // receive
 				packet->len = b->desc >> 16;
-				if (packet->len > 0) {
+				if (packet->len > 0) { 
 					packet->index = 0;
 					packet->next = NULL;
 					if (rx_first[endpoint] == NULL) {
@@ -910,7 +919,7 @@ void usb_isr(void)
 					packet = usb_malloc();
 					if (packet) {
 						b->addr = packet->buf;
-						b->desc = BDT_DESC(64, ((uint32_t)b & 8) ? DATA1 : DATA0);
+						b->desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, ((uint32_t)b & 8) ? DATA1 : DATA0);
 					} else {
 						////serial_print("starving ");
 						////serial_phex(endpoint + 1);
@@ -919,7 +928,7 @@ void usb_isr(void)
 						usb_rx_memory_needed++;
 					}
 				} else {
-					b->desc = BDT_DESC(64, ((uint32_t)b & 8) ? DATA1 : DATA0);
+					b->desc = BDT_DESC(MAX_PACKET_BUFFER_SIZE*MAX_PACKET_BUFFER_SAMPLE_SIZE, ((uint32_t)b & 8) ? DATA1 : DATA0);
 				}
 			}
 
