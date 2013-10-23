@@ -31,7 +31,7 @@
 #ifndef _usb_mem_h_
 #define _usb_mem_h_
 
-#define MAX_PACKET_BUFFER_SIZE 192  // used to set the dimension of the buf[] field in usb_packet_struct
+#define MAX_PACKET_BUFFER_SIZE 96  // used to set the dimension of the buf[] field in usb_packet_struct
 #define MAX_PACKET_BUFFER_SAMPLE_SIZE 2
 
 #if MAX_PACKET_BUFFER_SAMPLE_SIZE == 1
